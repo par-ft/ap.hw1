@@ -31,7 +31,7 @@ Matrix algebra::random(size_t n, size_t m, double min, double max)
 {
     Matrix matrix;
 
-    unsigned seed{std::chrono::system_clock::now().time_since_epoch().count()};
+    long seed{std::chrono::system_clock::now().time_since_epoch().count()};
     std::default_random_engine generator(seed);
     std::uniform_real_distribution<double> distribution(min, max);
 
@@ -54,7 +54,13 @@ void algebra::show(const Matrix &matrix)
     for (auto inner : matrix)
     {
         for (double num : inner)
+        {
+            // printing all numbers in a beautiful way
+            if (num >= 0)
+                std::cout << " ";
+
             std::cout << std::fixed << std::setprecision(3) << num << " ";
+        }
 
         std::cout << std::endl;
     }
@@ -63,13 +69,18 @@ void algebra::show(const Matrix &matrix)
 // multiply matrix in C
 Matrix algebra::multiply(const Matrix &matrix, double c)
 {
-    Matrix new_matrix{algebra::zeros(matrix.size(), matrix[0].size())};
+    if (matrix.size() != 0)
+    {
+        Matrix new_matrix{algebra::zeros(matrix.size(), matrix[0].size())};
 
-    for (ssize_t i{}; i < matrix.size(); i++)
-        for (size_t j{}; j < matrix[0].size(); j++)
-            new_matrix[i][j] = matrix[i][j] * c;
+        for (ssize_t i{}; i < matrix.size(); i++)
+            for (size_t j{}; j < matrix[0].size(); j++)
+                new_matrix[i][j] = matrix[i][j] * c;
 
-    return new_matrix;
+        return new_matrix;
+    }
+
+    return Matrix{};
 }
 
 // matrix1 multiply to matrix2
@@ -100,37 +111,53 @@ Matrix algebra::multiply(const Matrix &matrix1, const Matrix &matrix2)
 // add c to all
 Matrix algebra::sum(const Matrix &matrix, double c)
 {
-    Matrix new_matrix{algebra::zeros(matrix.size(), matrix[0].size())};
+    if (matrix.size() != 0)
+    {
+        Matrix new_matrix{algebra::zeros(matrix.size(), matrix[0].size())};
 
-    for (ssize_t i{}; i < matrix.size(); i++)
-        for (size_t j{}; j < matrix[0].size(); j++)
-            new_matrix[i][j] = matrix[i][j] + c;
+        for (ssize_t i{}; i < matrix.size(); i++)
+            for (size_t j{}; j < matrix[0].size(); j++)
+                new_matrix[i][j] = matrix[i][j] + c;
 
-    return new_matrix;
+        return new_matrix;
+    }
+
+    return Matrix{};
 }
 
 // add matrix1 to matrix2
 Matrix algebra::sum(const Matrix &matrix1, const Matrix &matrix2)
 {
-    Matrix new_matrix{algebra::zeros(matrix1.size(), matrix1[0].size())};
+    if (matrix1.size() != 0)
+        if (matrix1.size() == matrix2.size() && matrix1[0].size() == matrix2[0].size())
+        {
+            Matrix new_matrix{algebra::zeros(matrix1.size(), matrix1[0].size())};
 
-    for (ssize_t i{}; i < matrix1.size(); i++)
-        for (size_t j{}; j < matrix1[0].size(); j++)
-            new_matrix[i][j] = matrix1[i][j] + matrix2[i][j];
+            for (ssize_t i{}; i < matrix1.size(); i++)
+                for (size_t j{}; j < matrix1[0].size(); j++)
+                    new_matrix[i][j] = matrix1[i][j] + matrix2[i][j];
 
-    return new_matrix;
+            return new_matrix;
+        }
+
+    return Matrix{};
 }
 
 // transpose of matrix
 Matrix algebra::transpose(const Matrix &matrix)
 {
-    Matrix new_matrix{algebra::zeros(matrix[0].size(), matrix.size())};
+    if (matrix.size() != 0)
+    {
+        Matrix new_matrix{algebra::zeros(matrix[0].size(), matrix.size())};
 
-    for (ssize_t i{}; i < matrix.size(); i++)
-        for (size_t j{}; j < matrix[0].size(); j++)
-            new_matrix[j][i] = matrix[i][j];
+        for (size_t i{}; i < matrix.size(); i++)
+            for (size_t j{}; j < matrix[0].size(); j++)
+                new_matrix[j][i] = matrix[i][j];
 
-    return new_matrix;
+        return new_matrix;
+    }
+
+    return Matrix{};
 }
 
 // minor of matrix
@@ -154,8 +181,20 @@ double algebra::determinant(const Matrix &matrix)
 {
     double determinant{};
 
-    for (size_t i{}; i < matrix.size(); i++)
-        determinant += matrix[0][i] * pow(-1, i) * algebra::determinant(algebra::minor(matrix, 0, i));
+    if (matrix.size() != 0)
+    {
+        if (matrix.size() == matrix[0].size())
+            if (matrix.size() != 1)
+                for (size_t i{}; i < matrix.size(); i++)
+                    determinant += matrix[0][i] * pow(-1, i) * algebra::determinant(algebra::minor(matrix, 0, i));
+            else
+                determinant = matrix[0][0];
+    }
+    else
+    {
+        std::cout << "test\n";
+        determinant = 1;
+    }
 
     return determinant;
 }
@@ -165,6 +204,12 @@ Matrix algebra::inverse(const Matrix &matrix)
 {
     Matrix adjugate_matrix{matrix};
     double determinant{algebra::determinant(matrix)};
+
+    for (size_t i{}; i < matrix.size(); i++)
+        for (size_t j{}; j < matrix[0].size(); j++)
+            adjugate_matrix[i][j] = pow(-1, i + j) * algebra::determinant(algebra::minor(matrix, i, j));
+
+    adjugate_matrix = algebra::transpose(adjugate_matrix);
 
     return algebra::multiply(adjugate_matrix, 1 / determinant);
 }

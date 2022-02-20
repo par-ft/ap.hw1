@@ -26,13 +26,13 @@ namespace algebra
     // multiply matrix in C
     Matrix multiply(const Matrix &matrix, double c);
 
-    // matrixb multiply to matrixa
+    // matrix1 multiply to matrix2
     Matrix multiply(const Matrix &matrix1, const Matrix &matrix2);
 
     // add c to all
     Matrix sum(const Matrix &matrix, double c);
 
-    // add matrixa to matrixb
+    // add matrix1 to matrix2
     Matrix sum(const Matrix &matrix1, const Matrix &matrix2);
 
     // transpose of matrix
