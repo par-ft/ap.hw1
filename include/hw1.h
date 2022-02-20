@@ -4,6 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <random>
+#include <iomanip>
+#include <cmath>
 
 using Matrix = std::vector<std::vector<double>>;
 namespace algebra

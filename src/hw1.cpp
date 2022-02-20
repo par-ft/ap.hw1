@@ -49,31 +49,125 @@ Matrix algebra::random(size_t n, size_t m, double min, double max)
 }
 
 // show matrix
-void algebra::show(const Matrix &matrix) {}
+void algebra::show(const Matrix &matrix)
+{
+    for (auto inner : matrix)
+    {
+        for (double num : inner)
+            std::cout << std::fixed << std::setprecision(3) << num << " ";
+
+        std::cout << std::endl;
+    }
+}
 
 // multiply matrix in C
-Matrix algebra::multiply(const Matrix &matrix, double c) {}
+Matrix algebra::multiply(const Matrix &matrix, double c)
+{
+    Matrix new_matrix{algebra::zeros(matrix.size(), matrix[0].size())};
 
-// matrixb multiply to matrixa
-Matrix algebra::multiply(const Matrix &matrix1, const Matrix &matrix2) {}
+    for (ssize_t i{}; i < matrix.size(); i++)
+        for (size_t j{}; j < matrix[0].size(); j++)
+            new_matrix[i][j] = matrix[i][j] * c;
+
+    return new_matrix;
+}
+
+// matrix1 multiply to matrix2
+Matrix algebra::multiply(const Matrix &matrix1, const Matrix &matrix2)
+{
+    Matrix new_matrix;
+
+    for (ssize_t i{}; i < matrix1.size(); i++)
+    {
+        std::vector<double> inner;
+
+        for (size_t j{}; j < matrix2[0].size(); j++)
+        {
+            double num{};
+
+            for (size_t k{}; k < matrix2.size(); k++)
+                num += matrix1[i][k] * matrix2[k][j];
+
+            inner.push_back(num);
+        }
+
+        new_matrix.push_back(inner);
+    }
+
+    return new_matrix;
+}
 
 // add c to all
-Matrix algebra::sum(const Matrix &matrix, double c) {}
+Matrix algebra::sum(const Matrix &matrix, double c)
+{
+    Matrix new_matrix{algebra::zeros(matrix.size(), matrix[0].size())};
 
-// add matrixa to matrixb
-Matrix algebra::sum(const Matrix &matrix1, const Matrix &matrix2) {}
+    for (ssize_t i{}; i < matrix.size(); i++)
+        for (size_t j{}; j < matrix[0].size(); j++)
+            new_matrix[i][j] = matrix[i][j] + c;
+
+    return new_matrix;
+}
+
+// add matrix1 to matrix2
+Matrix algebra::sum(const Matrix &matrix1, const Matrix &matrix2)
+{
+    Matrix new_matrix{algebra::zeros(matrix1.size(), matrix1[0].size())};
+
+    for (ssize_t i{}; i < matrix1.size(); i++)
+        for (size_t j{}; j < matrix1[0].size(); j++)
+            new_matrix[i][j] = matrix1[i][j] + matrix2[i][j];
+
+    return new_matrix;
+}
 
 // transpose of matrix
-Matrix algebra::transpose(const Matrix &matrix) {}
+Matrix algebra::transpose(const Matrix &matrix)
+{
+    Matrix new_matrix{algebra::zeros(matrix[0].size(), matrix.size())};
 
-// Mnm
-Matrix algebra::minor(const Matrix &matrix, size_t n, size_t m) {}
+    for (ssize_t i{}; i < matrix.size(); i++)
+        for (size_t j{}; j < matrix[0].size(); j++)
+            new_matrix[j][i] = matrix[i][j];
+
+    return new_matrix;
+}
+
+// minor of matrix
+Matrix algebra::minor(const Matrix &matrix, size_t n, size_t m)
+{
+    Matrix new_matrix{matrix};
+
+    // removing nth row
+    new_matrix.erase(new_matrix.begin() + n);
+
+    // removing mth column
+    new_matrix = algebra::transpose(new_matrix);
+    new_matrix.erase(new_matrix.begin() + m);
+    new_matrix = algebra::transpose(new_matrix);
+
+    return new_matrix;
+}
 
 // determinant of matrix
-double algebra::determinant(const Matrix &matrix) {}
+double algebra::determinant(const Matrix &matrix)
+{
+    double determinant{};
+
+    for (size_t i{}; i < matrix.size(); i++)
+        determinant += matrix[0][i] * pow(-1, i) * algebra::determinant(algebra::minor(matrix, 0, i));
+
+    return determinant;
+}
 
 // inverse of matrix
-Matrix algebra::inverse(const Matrix &matrix) {}
+Matrix algebra::inverse(const Matrix &matrix)
+{
+    Matrix adjugate_matrix{matrix};
+    double determinant{algebra::determinant(matrix)};
+
+    return algebra::multiply(adjugate_matrix, 1 / determinant);
+}
 
 // axis=0: on top of each other & axis=1: alongside each othe
 Matrix algebra::concatenate(const Matrix &matrix1, const Matrix &matrix2, int axis = 0) {}
