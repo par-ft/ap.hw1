@@ -7,8 +7,10 @@
 #include <random>
 #include <iomanip>
 #include <cmath>
+#include <stdexcept>
 
 using Matrix = std::vector<std::vector<double>>;
+
 namespace algebra
 {
     // zero matrix
