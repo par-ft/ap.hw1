@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 using Matrix = std::vector<std::vector<double>>;
 namespace algebra
